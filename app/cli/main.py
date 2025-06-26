@@ -1,0 +1,42 @@
+import click
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from app.config import DATABASE_URL
+from app.models.collaborator import Collaborator
+from app.auth.auth import verify_password, create_token
+from app.cli.client import list_clients, create_client
+
+engine = create_engine(DATABASE_URL)
+Session = sessionmaker(bind=engine)
+
+
+
+@click.group()
+def cli():
+    pass
+
+cli.add_command(list_clients)
+cli.add_command(create_client)
+
+
+@cli.command()
+@click.option('--email', prompt=True)
+@click.option('--password', prompt=True, hide_input=True)
+def login(email, password):
+    """Authentifie un utilisateur et retourne un token JWT"""
+    session = Session()
+    user = session.query(Collaborator).filter_by(email=email).first()
+
+    if not user:
+        click.echo("Utilisateur non trouvé.")
+        return
+
+    if not verify_password(password, user.password):
+        click.echo("Mot de passe incorrect.")
+        return
+
+    token = create_token(user.id)
+    click.echo(f"Authentification réussie. Token :\n{token}")
+
+if __name__ == "__main__":
+    cli()
