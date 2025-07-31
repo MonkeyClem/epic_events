@@ -107,7 +107,9 @@ def update_contract(token):
             click.echo("Contrat introuvable.")
             return
 
-        # Autorisation : Sales = uniquement si assigné, Management = tous les contrats
+        # Autorisation : 
+        # Sales = uniquement si assigné
+        # Management = tous les contrats
         if user.department.name == "Sales" and contract.sales_contact_id != user.id:
             click.echo("Vous n’êtes pas autorisé à modifier ce contrat.")
             return
