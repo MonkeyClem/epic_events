@@ -7,6 +7,7 @@ class Contract(Base):
 
     id = Column(Integer, primary_key=True)
     amount = Column(Float, nullable=False)
+    remaining_amount = Column(Float, default=amount, nullable=True)
     signed = Column(Boolean, default=False)
     signed_date = Column(Date)
     
