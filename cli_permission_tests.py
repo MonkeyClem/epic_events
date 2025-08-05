@@ -26,7 +26,7 @@ def create_user_if_not_exists(email, first_name, last_name, password, department
         email=email,
         password=hash_password(password),
         department=dept,
-        employee_number=random.randint(100000, 999999)
+        # employee_number=random.randint(100000, 999999)
     )
     session.add(user)
     session.commit()
@@ -38,7 +38,7 @@ def generate_token_for_user(user):
 
 
 def run_command_with_token(command_name, token):
-    print(f"\n🔍 Test commande : {command_name} avec token de {token[:10]}...")
+    print(f"\n Test commande : {command_name} avec token de {token[:10]}...")
     try:
         result = subprocess.run(
             ["python", "-m", "app.cli.main", command_name, "--token", token],
@@ -66,7 +66,7 @@ def run_command_with_token(command_name, token):
 
 
 if __name__ == "__main__":
-    print("🧪 Initialisation des utilisateurs et des tokens...")
+    print("Initialisation des utilisateurs et des tokens...")
 
     users = {
         "sales": create_user_if_not_exists(
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     tokens = {role: generate_token_for_user(user) for role, user in users.items()}
 
-    print("✅ Utilisateurs prêts. Début des tests...")
+    print(" Utilisateurs prêts. Début des tests...")
 
     tests = [
         ("create-client", ["sales", "manager"]),
@@ -99,6 +99,6 @@ if __name__ == "__main__":
     for cmd, roles in tests:
         for role in ["sales", "support", "manager"]:
             token = tokens[role]
-            print(f"\n🔧 {cmd} — exécuté par {role.upper()}")
+            print(f"\n {cmd} — exécuté par {role.upper()}")
             run_command_with_token(cmd, token)
             time.sleep(1)

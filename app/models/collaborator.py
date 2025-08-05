@@ -13,7 +13,7 @@ class Collaborator(Base):
     last_name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    employee_number = Column(String, unique=True, nullable=False)
+    # employee_number = Column(String, unique=True, nullable=True)
 
     department_id = Column(Integer, ForeignKey("departments.id"))
 
