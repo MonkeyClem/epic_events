@@ -141,3 +141,30 @@ def update_event(token):
         session.rollback()
         sentry_sdk.capture_exception(e)
         click.echo(f"Erreur lors de la mise à jour de l’événement : {e}")
+        
+        
+@click.command("list-unassigned-events")
+@click.option("--token", prompt=True, help="Jeton d’authentification JWT")
+@check_permission(["gestion", "support"])
+def list_unassigned_events(token):
+    """Liste les événements sans collaborateur support assigné."""
+    user_id = verify_token(token)
+    if not user_id:
+        click.echo("Token invalide ou expiré.")
+        return
+
+    session = SessionLocal()
+    try:
+        events = session.query(Event).filter(Event.support_contact_id == None).all()
+
+        if not events:
+            click.echo("Tous les événements ont un support assigné.")
+            return
+
+        click.echo("Événements sans support :")
+        for e in events:
+            click.echo(f"[{e.id}] {e.name} | Client ID: {e.client_id} | Début: {e.event_date_start} | Lieu: {e.location}")
+    except Exception as e:
+        click.echo(f"Erreur lors de la récupération des événements : {e}")
+    finally:
+        session.close()
