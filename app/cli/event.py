@@ -3,6 +3,7 @@ from datetime import datetime
 from app.auth.permissions import check_permission
 from app.models.event import Event
 from app.models.contract import Contract
+import sentry_sdk
 from app.db.session import SessionLocal
 from app.auth.auth import verify_token
 

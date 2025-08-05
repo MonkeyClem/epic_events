@@ -36,7 +36,7 @@ def list_contracts(token):
 
 @click.command("create-contract")
 @click.option("--token", prompt=True, help="Jeton JWT pour authentification")
-@check_permission(["gestion"])
+@check_permission(["commercial", "gestion"])
 def create_contract(token):
     user_id = verify_token(token)
     if not user_id:

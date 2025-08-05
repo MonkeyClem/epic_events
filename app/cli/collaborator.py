@@ -104,7 +104,7 @@ def delete_collaborator(token):
             click.echo("Collaborateur introuvable.")
             return
 
-        confirm = click.confirm(f"⚠️ Confirmer la suppression de {collaborator.email} ?", default=False)
+        confirm = click.confirm(f"Confirmer la suppression de {collaborator.email} ?", default=False)
         if not confirm:
             click.echo("Suppression annulée.")
             return
