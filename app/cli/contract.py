@@ -128,3 +128,53 @@ def update_contract(token):
     except Exception as e:
         sentry_sdk.capture_exception(e)
         click.echo(f"Erreur lors de la mise à jour du contrat : {e}")
+        
+        
+        
+@click.command("filter-contracts")
+@click.option("--token", prompt=True, help="Jeton d’authentification JWT")
+@check_permission(["commercial", "gestion"])
+def filter_contracts(token):
+    """Affiche les contrats filtrés (non signés ou non payés)"""
+    user_id = verify_token(token)
+    if not user_id:
+        click.echo("Token invalide ou expiré.")
+        return
+
+    click.echo("\n📋 Critères de filtrage disponibles :")
+    click.echo("1 - Contrats non signés")
+    click.echo("2 - Contrats avec montant restant à payer")
+    click.echo("3 - Les deux")
+
+    choix = click.prompt("Sélectionnez un filtre (1, 2 ou 3)", type=int)
+
+    session = SessionLocal()
+    try:
+        query = session.query(Contract)
+
+        if choix == 1:
+            contracts = query.filter(Contract.signed == False).all()
+        elif choix == 2:
+            contracts = query.filter(Contract.remaining_amount > 0).all()
+        elif choix == 3:
+            contracts = query.filter(
+                (Contract.signed == False) | (Contract.remaining_amount > 0)
+            ).all()
+        else:
+            click.echo("Choix invalide.")
+            return
+
+        if not contracts:
+            click.echo("Aucun contrat correspondant au filtre.")
+            return
+
+        click.echo("\n📄 Contrats filtrés :")
+        for c in contracts:
+            click.echo(
+                f"[{c.id}] Client ID: {c.client_id} | Montant: {c.total_amount} € | Restant: {c.remaining_amount} € | Signé: {'Oui' if c.signed else 'Non'}"
+            )
+
+    except Exception as e:
+        click.echo(f"Erreur lors du filtrage : {e}")
+    finally:
+        session.close()
