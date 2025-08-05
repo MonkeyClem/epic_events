@@ -36,7 +36,7 @@ def list_contracts(token):
 
 @click.command("create-contract")
 @click.option("--token", prompt=True, help="Jeton JWT pour authentification")
-@check_permission(["commercial", "gestion"])
+@check_permission(["gestion"])
 def create_contract(token):
     user_id = verify_token(token)
     if not user_id:
@@ -51,18 +51,23 @@ def create_contract(token):
             click.echo("Client introuvable.")
             return
 
-        if client.commercial_contact_id != user_id:
-            click.echo("Vous n’êtes pas autorisé à créer un contrat pour ce client.")
-            return
+        # if client.commercial_contact_id != user_id:
+        #     click.echo("Vous n’êtes pas autorisé à créer un contrat pour ce client.")
+        #     return
+        sales_contact_id = client.commercial_contact_id
+        
+        print("client dans la création de contrat : ", client)
 
         amount = click.prompt("Montant", type=float)
+        already_payed_amount=click.prompt('Si une partie du montant a déjà été réglé, merci de bien vouloir indiquer la somme ici :', type=float)
         signed = click.confirm("Contrat signé ?")
         signed_date = datetime.now() if signed else None
 
         contract = Contract(
             client_id=client_id,
-            sales_contact_id=user_id,
+            sales_contact_id=sales_contact_id,
             amount=amount,
+            remaining_amount=amount-already_payed_amount,
             signed=signed,
             signed_date=signed_date
         )
@@ -77,7 +82,7 @@ def create_contract(token):
 
 @click.command("update-contract")
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
-@check_permission(["Sales", "gestion"])
+@check_permission(["commercial", "gestion"])
 def update_contract(token):
     """Mise à jour d’un contrat existant si autorisé."""
     try:
@@ -110,7 +115,7 @@ def update_contract(token):
         # Autorisation : 
         # Sales = uniquement si assigné
         # gestion = tous les contrats
-        if user.department.name == "Sales" and contract.sales_contact_id != user.id:
+        if user.department.name == "commercial" and contract.sales_contact_id != user.id:
             click.echo("Vous n’êtes pas autorisé à modifier ce contrat.")
             return
 

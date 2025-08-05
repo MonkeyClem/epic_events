@@ -27,7 +27,7 @@ def list_clients(token):
 
 @click.command("create-client")
 @click.option("--token", prompt=True, help="Token d'authentification JWT")
-@check_permission(["Sales"])
+@check_permission(["commercial"])
 def create_client(token):
     user_id = verify_token(token)
     if not user_id:
@@ -35,16 +35,18 @@ def create_client(token):
         return
 
     try:
-        first_name = click.prompt("Prénom")
-        last_name = click.prompt("Nom")
+        first_name = click.prompt("Prénom du client")
+        last_name = click.prompt("Nom du client")
         email = click.prompt("Email")
         phone = click.prompt("Téléphone")
         company_name = click.prompt("Nom de l’entreprise")
+        commercial_contact_id = user_id
 
         session = SessionLocal()
         client = Client(
             first_name=first_name,
             last_name=last_name,
+            commercial_contact_id=commercial_contact_id,
             email=email,
             phone=phone,
             company_name=company_name
@@ -60,7 +62,7 @@ def create_client(token):
 
 @click.command("update-client")
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
-@check_permission(["Sales"])
+@check_permission(["commercial"])
 def update_client(token):
     user_id = verify_token(token)
     if not user_id:
@@ -81,8 +83,8 @@ def update_client(token):
             click.echo("Client introuvable.")
             return
 
-        if user.department.name == "Sales" and client.commercial_contact_id != user.id:
-            click.echo("Vous n’êtes pas autorisé à modifier ce client.")
+        if user.department.name == "commercial" and client.commercial_contact_id != user.id:
+            click.echo("Les informations d'un client ne peuvent être mises à jour que par le commercial qui lui est attitré")
             return
 
         client.first_name = click.prompt("Prénom", default=client.first_name)

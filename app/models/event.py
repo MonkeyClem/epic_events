@@ -16,7 +16,7 @@ class Event(Base):
     notes = Column(String)
 
     contract_id = Column(Integer, ForeignKey("contracts.id"), nullable=False)
-    support_contact_id = Column(Integer, ForeignKey("collaborators.id"), nullable=False)
+    support_contact_id = Column(Integer, ForeignKey("collaborators.id"), nullable=True)
 
     contract = relationship("Contract", back_populates="event")
     support_contact = relationship("Collaborator", back_populates="events")

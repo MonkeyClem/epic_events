@@ -34,7 +34,7 @@ def list_events(token):
 
 @click.command("create-event")
 @click.option("--token", prompt=True, help="Jeton JWT d'authentification")
-@check_permission(["Sales"])
+@check_permission(["commercial"])
 def create_event(token):
     user_id = verify_token(token)
     session = SessionLocal()
@@ -84,7 +84,7 @@ def create_event(token):
         attendees=attendees,
         notes=notes,
         contract_id=contract_id,
-        support_contact_id=user_id
+        # support_contact_id=
     )
 
     session.add(event)
@@ -137,24 +137,32 @@ def update_event(token):
             click.echo("Événement introuvable ou accès non autorisé.")
             return
 
-        # --- Mise à jour des champs ---
         event.name = click.prompt("Nom", default=event.name)
         event.location = click.prompt("Emplacement", default=event.location)
 
         try:
-            date_start_str = click.prompt("Date de début (YYYY-MM-DD HH:MM)", default=str(event.date_start))
+            # date_start_str = click.prompt("Date de début (YYYY-MM-DD HH:MM)", default=(event.date_start))
+            # event.date_start = datetime.strptime(date_start_str, "%Y-%m-%d %H:%M")
+            # date_end_str = click.prompt("Date de fin (YYYY-MM-DD HH:MM)", default=event.date_end)
+            # event.date_end = datetime.strptime(date_end_str, "%Y-%m-%d %H:%M")
+            date_start_str = click.prompt("Date de début (YYYY-MM-DD HH:MM)", default=event.date_start.strftime("%Y-%m-%d %H:%M"))
             event.date_start = datetime.strptime(date_start_str, "%Y-%m-%d %H:%M")
-            date_end_str = click.prompt("Date de fin (YYYY-MM-DD HH:MM)", default=str(event.date_end))
+
+            date_end_str = click.prompt("Date de fin (YYYY-MM-DD HH:MM)",default=event.date_end.strftime("%Y-%m-%d %H:%M"))
             event.date_end = datetime.strptime(date_end_str, "%Y-%m-%d %H:%M")
+            
+    
         except ValueError:
-            click.echo("⛔ Format de date invalide.")
+            click.echo(" Format de date invalide.")
             return
 
         event.attendees = click.prompt("Participants", type=int, default=event.attendees)
         event.notes = click.prompt("Notes", default=event.notes or "")
+        if user.department.name.lower() == "gestion": 
+            event.support_contact_id = click.prompt("Veuillez renseigner l'identifiant du collaborateur support en charge de cet évènement", type = int)
 
         session.commit()
-        click.echo("✅ Événement mis à jour avec succès.")
+        click.echo("Événement mis à jour avec succès.")
 
     except Exception as e:
         session.rollback()
