@@ -189,3 +189,60 @@ def list_unassigned_events(token):
         click.echo(f"Erreur lors de la récupération des événements : {e}")
     finally:
         session.close()
+        
+        
+@click.command("assign-support-to-event")
+@click.option("--token", prompt=True, help="Token JWT")
+@check_permission(["gestion"])
+def assign_support_to_event(token):
+    """Assigne un collaborateur support à un événement"""
+    user_id = verify_token(token)
+    if not user_id:
+        click.echo("Token invalide ou expiré.")
+        return
+
+    session = SessionLocal()
+    try:
+        # 1. Afficher les événements sans support
+        events = session.query(Event).filter(Event.support_contact_id == None).all()
+        if not events:
+            click.echo("✅ Tous les événements ont déjà un support.")
+            return
+
+        click.echo("\n📅 Événements sans support :")
+        for e in events:
+            click.echo(f"[{e.id}] {e.name} | {e.date_start} | Lieu : {e.location}")
+
+        event_id = click.prompt("\nID de l'événement à assigner", type=int)
+        event = session.query(Event).get(event_id)
+        if not event:
+            click.echo("⛔ Événement introuvable.")
+            return
+
+        # 2. Afficher les collaborateurs support
+        supports = session.query(Collaborator).join(Collaborator.department).filter(Department.name.ilike("support")).all()
+        if not supports:
+            click.echo("Aucun collaborateur support disponible.")
+            return
+
+        click.echo("\nCollaborateurs support disponibles :")
+        for s in supports:
+            click.echo(f"[{s.id}] {s.first_name} {s.last_name} | {s.email}")
+
+        support_id = click.prompt("\nID du collaborateur support à assigner", type=int)
+        support_user = session.query(Collaborator).get(support_id)
+
+        if not support_user or support_user.department.name.lower() != "support":
+            click.echo("Collaborateur invalide ou non support.")
+            return
+
+        event.support_contact_id = support_id
+        session.commit()
+        click.echo("Collaborateur support assigné avec succès à l’événement.")
+
+    except Exception as e:
+        session.rollback()
+        sentry_sdk.capture_exception(e)
+        click.echo(f"Erreur : {e}")
+    finally:
+        session.close()
