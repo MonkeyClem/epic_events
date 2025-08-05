@@ -27,7 +27,7 @@ def list_clients(token):
 
 @click.command("create-client")
 @click.option("--token", prompt=True, help="Token d'authentification JWT")
-@check_permission(["Sales", "Management"])
+@check_permission(["Sales", "gestion"])
 def create_client(token):
     user_id = verify_token(token)
     if not user_id:
@@ -60,7 +60,7 @@ def create_client(token):
 
 @click.command("update-client")
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
-@check_permission(["Sales", "Management"])
+@check_permission(["Sales", "gestion"])
 def update_client(token):
     user_id = verify_token(token)
     if not user_id:

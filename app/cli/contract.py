@@ -36,7 +36,7 @@ def list_contracts(token):
 
 @click.command("create-contract")
 @click.option("--token", prompt=True, help="Jeton JWT pour authentification")
-@check_permission(["Management"])
+@check_permission(["gestion"])
 def create_contract(token):
     user_id = verify_token(token)
     if not user_id:
@@ -77,7 +77,7 @@ def create_contract(token):
 
 @click.command("update-contract")
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
-@check_permission(["Sales", "Management"])
+@check_permission(["Sales", "gestion"])
 def update_contract(token):
     """Mise à jour d’un contrat existant si autorisé."""
     try:
@@ -109,7 +109,7 @@ def update_contract(token):
 
         # Autorisation : 
         # Sales = uniquement si assigné
-        # Management = tous les contrats
+        # gestion = tous les contrats
         if user.department.name == "Sales" and contract.sales_contact_id != user.id:
             click.echo("Vous n’êtes pas autorisé à modifier ce contrat.")
             return

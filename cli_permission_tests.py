@@ -76,7 +76,7 @@ if __name__ == "__main__":
             "support@example.com", "Alice", "Support", "test1234", "Support"
         ),
         "manager": create_user_if_not_exists(
-            "manager@example.com", "Bob", "Manager", "test1234", "Management"
+            "manager@example.com", "Bob", "Manager", "test1234", "gestion"
         ),
     }
 

@@ -94,7 +94,7 @@ def create_event(token):
 
 @click.command("update-event")
 @click.option("--token", prompt=True, help="Token JWT")
-@check_permission(["Support", "Management"])
+@check_permission(["Support", "gestion"])
 def update_event(token):
     user_id = verify_token(token)
     if not user_id:
