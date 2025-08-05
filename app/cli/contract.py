@@ -23,7 +23,7 @@ def list_contracts(token):
     contracts = session.query(Contract).all()
 
     if not contracts:
-        click.echo(INVALID_TOKEN_MESSAGE)
+        click.echo("Aucun contrats n'existe en base de données")
         return
 
     for contract in contracts:

@@ -1,6 +1,7 @@
 import click
 from datetime import datetime
 from app.auth.permissions import check_permission
+from app.models.collaborator import Collaborator
 from app.models.event import Event
 from app.models.contract import Contract
 import sentry_sdk
@@ -95,8 +96,9 @@ def create_event(token):
 
 @click.command("update-event")
 @click.option("--token", prompt=True, help="Token JWT")
-@check_permission(["Support", "gestion"])
+@check_permission(["support", "gestion"])
 def update_event(token):
+    """Met à jour un événement (support ou gestion)"""
     user_id = verify_token(token)
     if not user_id:
         click.echo("Token invalide ou expiré.")
@@ -104,44 +106,63 @@ def update_event(token):
 
     session = SessionLocal()
     try:
-        events = session.query(Event).filter_by(support_contact_id=user_id).all()
+        user = session.query(Collaborator).get(user_id)
+        if not user:
+            click.echo("Utilisateur introuvable.")
+            return
+
+        if user.department.name.lower() == "support":
+            # Le support ne peut voir que SES événements
+            events = session.query(Event).filter_by(support_contact_id=user_id).all()
+        else:
+            # La gestion peut voir TOUS les événements
+            events = session.query(Event).all()
 
         if not events:
-            click.echo("Aucun événement assigné à vous.")
+            click.echo("Aucun événement disponible à modifier.")
             return
 
-        click.echo("Événements assignés à vous :")
+        click.echo("\n📋 Événements disponibles :")
         for e in events:
-            click.echo(f"{e.id} - {e.name} (Date début : {e.date_start})")
+            click.echo(f"[{e.id}] {e.name} | Début : {e.date_start} | Lieu : {e.location}")
 
         event_id = click.prompt("ID de l’événement à modifier", type=int)
-        event = session.query(Event).filter_by(id=event_id, support_contact_id=user_id).first()
+
+        if user.department.name.lower() == "support":
+            event = session.query(Event).filter_by(id=event_id, support_contact_id=user_id).first()
+        else:
+            event = session.query(Event).filter_by(id=event_id).first()
 
         if not event:
-            click.echo("Événement introuvable ou non autorisé.")
+            click.echo("Événement introuvable ou accès non autorisé.")
             return
 
-        event.name = click.prompt("Nouveau nom", default=event.name)
-        event.location = click.prompt("Nouvel emplacement", default=event.location)
+        # --- Mise à jour des champs ---
+        event.name = click.prompt("Nom", default=event.name)
+        event.location = click.prompt("Emplacement", default=event.location)
 
         try:
-            date_start_str = click.prompt("Nouvelle date de début (YYYY-MM-DD HH:MM)", default=str(event.date_start))
+            date_start_str = click.prompt("Date de début (YYYY-MM-DD HH:MM)", default=str(event.date_start))
             event.date_start = datetime.strptime(date_start_str, "%Y-%m-%d %H:%M")
-            date_end_str = click.prompt("Nouvelle date de fin (YYYY-MM-DD HH:MM)", default=str(event.date_end))
+            date_end_str = click.prompt("Date de fin (YYYY-MM-DD HH:MM)", default=str(event.date_end))
             event.date_end = datetime.strptime(date_end_str, "%Y-%m-%d %H:%M")
         except ValueError:
-            click.echo("Format de date invalide.")
+            click.echo("⛔ Format de date invalide.")
             return
 
-        event.attendees = click.prompt("Nombre de participants", type=int, default=event.attendees)
+        event.attendees = click.prompt("Participants", type=int, default=event.attendees)
         event.notes = click.prompt("Notes", default=event.notes or "")
+
         session.commit()
-        click.echo("Événement mis à jour avec succès.")
+        click.echo("✅ Événement mis à jour avec succès.")
+
     except Exception as e:
         session.rollback()
         sentry_sdk.capture_exception(e)
-        click.echo(f"Erreur lors de la mise à jour de l’événement : {e}")
-        
+        click.echo(f"Erreur : {e}")
+    finally:
+        session.close()
+  
         
 @click.command("list-unassigned-events")
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
