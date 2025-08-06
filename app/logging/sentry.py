@@ -3,8 +3,8 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 
 def init_sentry():
     sentry_logging = LoggingIntegration(
-        level="ERROR",         # Log level capté
-        event_level="ERROR"    # Ce qui est envoyé à Sentry
+        level="ERROR",         
+        event_level="ERROR"   
     )
 
     sentry_sdk.init(
