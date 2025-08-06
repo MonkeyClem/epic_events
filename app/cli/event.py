@@ -2,6 +2,7 @@ import click
 from datetime import datetime
 from app.auth.permissions import check_permission
 from app.models.collaborator import Collaborator
+from app.models.department import Department
 from app.models.event import Event
 from app.models.contract import Contract
 import sentry_sdk
@@ -89,6 +90,7 @@ def create_event(token):
 
     session.add(event)
     session.commit()
+    sentry_sdk.capture_message(f"Evènement {event.name} crée avec succès par l'utiisateur {user_id}")
     click.echo("Événement créé avec succès.")
 
 
@@ -101,6 +103,7 @@ def update_event(token):
     """Met à jour un événement (support ou gestion)"""
     user_id = verify_token(token)
     if not user_id:
+        sentry_sdk.capture_message("Tentative de mise à jour d'un évènement avec un token invalide ou expiré")
         click.echo("Token invalide ou expiré.")
         return
 
@@ -162,6 +165,7 @@ def update_event(token):
             event.support_contact_id = click.prompt("Veuillez renseigner l'identifiant du collaborateur support en charge de cet évènement", type = int)
 
         session.commit()
+        sentry_sdk.capture_message(f"Evenement {event.name} mis à jour avec succès par l'utilisateur {user_id}")
         click.echo("Événement mis à jour avec succès.")
 
     except Exception as e:
@@ -179,6 +183,7 @@ def list_unassigned_events(token):
     """Liste les événements sans collaborateur support assigné."""
     user_id = verify_token(token)
     if not user_id:
+        sentry_sdk.capture_message("Tentative de lister les évènements non assignés avec un token invalide ou expiré")
         click.echo("Token invalide ou expiré.")
         return
 
@@ -194,6 +199,7 @@ def list_unassigned_events(token):
         for e in events:
             click.echo(f"[{e.id}] {e.name} | Client ID: {e.client_id} | Début: {e.event_date_start} | Lieu: {e.location}")
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         click.echo(f"Erreur lors de la récupération des événements : {e}")
     finally:
         session.close()
@@ -206,25 +212,26 @@ def assign_support_to_event(token):
     """Assigne un collaborateur support à un événement"""
     user_id = verify_token(token)
     if not user_id:
+        sentry_sdk.capture_message("Tentative d'assignation d'évènement avec un token invalide ou expiré")
         click.echo("Token invalide ou expiré.")
         return
 
     session = SessionLocal()
     try:
-        # 1. Afficher les événements sans support
+        # 
         events = session.query(Event).filter(Event.support_contact_id == None).all()
         if not events:
-            click.echo("✅ Tous les événements ont déjà un support.")
+            click.echo("Tous les événements ont déjà un support.")
             return
 
-        click.echo("\n📅 Événements sans support :")
+        click.echo("\nÉvénements sans support :")
         for e in events:
             click.echo(f"[{e.id}] {e.name} | {e.date_start} | Lieu : {e.location}")
 
         event_id = click.prompt("\nID de l'événement à assigner", type=int)
         event = session.query(Event).get(event_id)
         if not event:
-            click.echo("⛔ Événement introuvable.")
+            click.echo("Événement introuvable.")
             return
 
         # 2. Afficher les collaborateurs support
@@ -246,6 +253,7 @@ def assign_support_to_event(token):
 
         event.support_contact_id = support_id
         session.commit()
+        sentry_sdk.capture_message(f"Collaborateur support assigné avec succès à l'évènement {event_id}")
         click.echo("Collaborateur support assigné avec succès à l’événement.")
 
     except Exception as e:

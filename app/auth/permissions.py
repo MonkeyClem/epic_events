@@ -3,6 +3,7 @@ from functools import wraps
 from app.db.session import SessionLocal
 from app.auth.auth import verify_token
 from app.models.collaborator import Collaborator
+import sentry_sdk
 
 def check_permission(allowed_departments):
     def decorator(f):
@@ -30,6 +31,7 @@ def check_permission(allowed_departments):
                 return f(*args, **kwargs)
 
             except Exception as e:
+                sentry_sdk.capture_exception(e)
                 click.echo(f"Erreur de permission : {str(e)}")
 
         return wrapper

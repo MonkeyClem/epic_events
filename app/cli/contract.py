@@ -16,6 +16,7 @@ INVALID_TOKEN_MESSAGE = "Token invalide ou expiré"
 def list_contracts(token):
     user_id = verify_token(token)
     if not user_id:
+        sentry_sdk.capture_message("Tentative de lister les contrats avec un token invalide ou expiré")
         click.echo(INVALID_TOKEN_MESSAGE)
         return
 
@@ -40,6 +41,7 @@ def list_contracts(token):
 def create_contract(token):
     user_id = verify_token(token)
     if not user_id:
+        sentry_sdk.capture_message("Tentative de création d'un contrat avec un token invalide ou expiré")
         click.echo("Token invalide ou expiré.")
         return
 
@@ -74,6 +76,7 @@ def create_contract(token):
 
         session.add(contract)
         session.commit()
+        sentry_sdk.capture_message(f"Contrat crée avec succès par l'utiisateur {user_id}")
         click.echo("Contrat créé avec succès.")
     except Exception as e:
         session.rollback()
@@ -88,6 +91,7 @@ def update_contract(token):
     try:
         user_id = verify_token(token)
         if not user_id:
+            sentry_sdk.capture_message("Tentative de mise à jour d'un contrat avec un token invalide ou expiré")
             click.echo("Token invalide ou expiré.")
             return
 
@@ -128,6 +132,7 @@ def update_contract(token):
             contract.signed_date = datetime.now()
 
         session.commit()
+        sentry_sdk.capture_message(f"Contrat {contract_id} mis à jour avec succès par l'utiisateur {user_id}")
         click.echo("Contrat mis à jour avec succès.")
 
     except Exception as e:
@@ -180,6 +185,7 @@ def filter_contracts(token):
             )
 
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         click.echo(f"Erreur lors du filtrage : {e}")
     finally:
         session.close()
