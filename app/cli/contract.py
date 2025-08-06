@@ -53,9 +53,6 @@ def create_contract(token):
             click.echo("Client introuvable.")
             return
 
-        # if client.commercial_contact_id != user_id:
-        #     click.echo("Vous n’êtes pas autorisé à créer un contrat pour ce client.")
-        #     return
         sales_contact_id = client.commercial_contact_id
         
         print("client dans la création de contrat : ", client)
@@ -82,6 +79,7 @@ def create_contract(token):
         session.rollback()
         sentry_sdk.capture_exception(e)
         click.echo(f"Erreur lors de la création du contrat : {e}")
+
 
 @click.command("update-contract")
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
@@ -116,20 +114,12 @@ def update_contract(token):
             click.echo("Contrat introuvable.")
             return
 
-        # Autorisation : 
-        # Sales = uniquement si assigné
-        # gestion = tous les contrats
         if user.department.name == "commercial" and contract.sales_contact_id != user.id:
             click.echo("Vous n’êtes pas autorisé à modifier ce contrat.")
             return
 
         contract.amount = click.prompt("Montant total", default=contract.amount, type=float)
         contract.remaining_amount = click.prompt("Montant restant", default=contract.remaining_amount, type=float)
-        contract.signed = click.confirm("Contrat signé ?", default=contract.signed)
-
-        if contract.signed:
-            from datetime import datetime
-            contract.signed_date = datetime.now()
 
         session.commit()
         sentry_sdk.capture_message(f"Contrat {contract_id} mis à jour avec succès par l'utiisateur {user_id}")
@@ -139,6 +129,8 @@ def update_contract(token):
         sentry_sdk.capture_exception(e)
         click.echo(f"Erreur lors de la mise à jour du contrat : {e}")
         
+    finally: 
+        session.close()
         
         
 @click.command("filter-contracts")
@@ -187,5 +179,44 @@ def filter_contracts(token):
     except Exception as e:
         sentry_sdk.capture_exception(e)
         click.echo(f"Erreur lors du filtrage : {e}")
+    finally:
+        session.close()
+        
+        
+@click.command("sign-contracts")
+@click.option("--token", prompt=True, help="Jeton d’authentification JWT")
+@check_permission(["commercial", "gestion"])
+def sign_contract(token):
+    user_id = verify_token(token)
+    if not user_id:
+        click.echo("Token invalide ou expiré.")
+        sentry_sdk.capture_message('Tentative de signature de contrat avec un token expiré ou invalide')
+        return
+    
+    try :
+        session = SessionLocal()
+        user = session.query(Collaborator).get(user_id)
+        
+        contract_id = click.prompt("ID du contrat à modifier", type=int)
+        contract = session.query(Contract).get(contract_id)
+        
+        if user.department_id == 2 and contract.sales_contact_id != user_id:
+            click.echo("Vous n'êtes pas autorisé à signer le contrat d'un autre commercial")
+            
+        if contract.signed == True:
+            click.echo("Ce contrat est déjà signé")
+            
+        contract.signed = click.confirm("Souhaitez vous modifier le statut du contrat ?", default=contract.signed)
+        
+        if contract.signed == True :
+            contract.signed_date = datetime.now()
+            
+        session.commit()
+        sentry_sdk.capture_message(f"Contrat {contract_id} signé avec succès par l'utiisateur {user_id}")
+
+        
+    except Exception as e: 
+        sentry_sdk.capture_exception(e)
+        
     finally:
         session.close()
