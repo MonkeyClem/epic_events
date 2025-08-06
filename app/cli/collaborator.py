@@ -12,7 +12,7 @@ def create_collaborator(token):
     user_id = verify_token(token)
     if not user_id:
         sentry_sdk.capture_message("Tentative de création de collaborateur avec token invalide ou expiré")
-        click.echo("Token invalide ou expiré.")
+        click.echo(INVALID_TOKEN_MESSAGE )
         return
 
     session = SessionLocal()
@@ -56,7 +56,7 @@ def update_collaborator(token):
     user_id = verify_token(token)
     if not user_id:
         sentry_sdk.capture_message("Tentative de mise à jour d'un collaborateur avec un token expiré ou invalide")
-        click.echo("Token invalide ou expiré.")
+        click.echo(INVALID_TOKEN_MESSAGE )
         return
 
     session = SessionLocal()
@@ -99,7 +99,7 @@ def delete_collaborator(token):
     user_id = verify_token(token)
     if not user_id:
         sentry_sdk.capture_message("Tentative de suppression d'un collaborateur avec un token invalide ou expiré")
-        click.echo("Token invalide ou expiré.")
+        click.echo(INVALID_TOKEN_MESSAGE )
         return
 
     session = SessionLocal()
@@ -136,7 +136,7 @@ def list_collaborators(token):
     user_id = verify_token(token)
     if not user_id:
         sentry_sdk.capture_message("Tentative de listing des collaborateurs avec un token invalide ou expiré")
-        click.echo("Token invalide ou expiré.")
+        click.echo(INVALID_TOKEN_MESSAGE )
         return
 
     session = SessionLocal()

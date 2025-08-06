@@ -1,13 +1,13 @@
 import click
 import sentry_sdk
 from app.auth.permissions import check_permission
+from app.cli.messages import INVALID_TOKEN_MESSAGE
 from app.db.session import SessionLocal
 from app.models.client import Client
 from app.auth.auth import verify_token
 from app.models.collaborator import Collaborator
 
 
-INVALID_TOKEN_MESSAGE = "Token invalide ou expiré"
 
 @click.command("list-clients")
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
@@ -69,7 +69,7 @@ def update_client(token):
     user_id = verify_token(token)
     if not user_id:
         sentry_sdk.capture_message("Tentaive de mise à jour de clients avec un token non valide")
-        click.echo("Token invalide ou expiré.")
+        click.echo(INVALID_TOKEN_MESSAGE )
         return
 
     session = SessionLocal()

@@ -2,14 +2,13 @@ from datetime import datetime
 import click
 import sentry_sdk
 from app.auth.permissions import check_permission
+from app.cli.messages import INVALID_TOKEN_MESSAGE
 from app.db.session import SessionLocal
 from app.models.client import Client
 from app.models.collaborator import Collaborator
 from app.models.contract import Contract
 from app.auth.auth import verify_token
 
-
-INVALID_TOKEN_MESSAGE = "Token invalide ou expiré"
 
 @click.command("list-contracts")
 @click.option('--token', prompt=True, help='Jeton JWT pour authentification')
@@ -42,7 +41,7 @@ def create_contract(token):
     user_id = verify_token(token)
     if not user_id:
         sentry_sdk.capture_message("Tentative de création d'un contrat avec un token invalide ou expiré")
-        click.echo("Token invalide ou expiré.")
+        click.echo(INVALID_TOKEN_MESSAGE )
         return
 
     session = SessionLocal()
@@ -90,7 +89,7 @@ def update_contract(token):
         user_id = verify_token(token)
         if not user_id:
             sentry_sdk.capture_message("Tentative de mise à jour d'un contrat avec un token invalide ou expiré")
-            click.echo("Token invalide ou expiré.")
+            click.echo(INVALID_TOKEN_MESSAGE)
             return
 
         session = SessionLocal()
@@ -140,7 +139,7 @@ def filter_contracts(token):
     """Affiche les contrats filtrés (non signés ou non payés)"""
     user_id = verify_token(token)
     if not user_id:
-        click.echo("Token invalide ou expiré.")
+        click.echo(INVALID_TOKEN_MESSAGE )
         return
 
     click.echo("\n📋 Critères de filtrage disponibles :")
@@ -189,7 +188,7 @@ def filter_contracts(token):
 def sign_contract(token):
     user_id = verify_token(token)
     if not user_id:
-        click.echo("Token invalide ou expiré.")
+        click.echo(INVALID_TOKEN_MESSAGE )
         sentry_sdk.capture_message('Tentative de signature de contrat avec un token expiré ou invalide')
         return
     
@@ -202,9 +201,12 @@ def sign_contract(token):
         
         if user.department_id == 2 and contract.sales_contact_id != user_id:
             click.echo("Vous n'êtes pas autorisé à signer le contrat d'un autre commercial")
+            sentry_sdk.capture_message('Tentative de signature de contrat par un utilisateur non autorisé')
+            return
             
         if contract.signed == True:
             click.echo("Ce contrat est déjà signé")
+            return
             
         contract.signed = click.confirm("Souhaitez vous modifier le statut du contrat ?", default=contract.signed)
         
