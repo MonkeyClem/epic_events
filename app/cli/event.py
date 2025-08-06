@@ -1,6 +1,7 @@
 import click
 from datetime import datetime
 from app.auth.permissions import check_permission
+from app.cli.messages import INVALID_TOKEN_MESSAGE
 from app.models.collaborator import Collaborator
 from app.models.department import Department
 from app.models.event import Event
@@ -104,7 +105,7 @@ def update_event(token):
     user_id = verify_token(token)
     if not user_id:
         sentry_sdk.capture_message("Tentative de mise à jour d'un évènement avec un token invalide ou expiré")
-        click.echo(INVALID_TOKEN_MESSAGE )
+        click.echo(INVALID_TOKEN_MESSAGE)
         return
 
     session = SessionLocal()

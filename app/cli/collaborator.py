@@ -1,6 +1,7 @@
 import click
 import sentry_sdk
 from app.auth.permissions import check_permission
+from app.cli.messages import INVALID_TOKEN_MESSAGE
 from app.db.session import SessionLocal
 from app.auth.auth import verify_token
 from app.models import Collaborator
