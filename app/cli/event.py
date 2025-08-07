@@ -9,6 +9,10 @@ from app.models.contract import Contract
 import sentry_sdk
 from app.db.session import SessionLocal
 from app.auth.auth import verify_token
+from app.models.collaborator import Collaborator
+import logging
+
+logger = logging.getLogger(__name__)
 
 @click.command("list-events")
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
@@ -91,7 +95,7 @@ def create_event(token):
 
     session.add(event)
     session.commit()
-    sentry_sdk.capture_message(f"Evènement {event.name} crée avec succès par l'utiisateur {user_id}", level="info")
+    logger.info(f"Evènement {event.name} crée avec succès par l'utiisateur {user_id}")
     click.echo("Événement créé avec succès.")
 
 
@@ -104,7 +108,7 @@ def update_event(token):
     """Met à jour un événement (support ou gestion)"""
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative de mise à jour d'un évènement avec un token invalide ou expiré", level="info")
+        logger.info("Tentative de mise à jour d'un évènement avec un token invalide ou expiré")
         click.echo(INVALID_TOKEN_MESSAGE)
         return
 
@@ -167,7 +171,7 @@ def update_event(token):
             event.support_contact_id = click.prompt("Veuillez renseigner l'identifiant du collaborateur support en charge de cet évènement", type = int)
 
         session.commit()
-        sentry_sdk.capture_message(f"Evenement {event.name} mis à jour avec succès par l'utilisateur {user_id}", level="info")
+        logger.info(f"Evenement {event.name} mis à jour avec succès par l'utilisateur {user_id}")
         click.echo("Événement mis à jour avec succès.")
 
     except Exception as e:
@@ -185,7 +189,7 @@ def list_unassigned_events(token):
     """Liste les événements sans collaborateur support assigné."""
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative de lister les évènements non assignés avec un token invalide ou expiré", level="info")
+        logger.info("Tentative de lister les évènements non assignés avec un token invalide ou expiré")
         click.echo(INVALID_TOKEN_MESSAGE )
         return
 
@@ -214,7 +218,7 @@ def assign_support_to_event(token):
     """Assigne un collaborateur support à un événement"""
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative d'assignation d'évènement avec un token invalide ou expiré", level="info")
+        logger.info("Tentative d'assignation d'évènement avec un token invalide ou expiré")
         click.echo(INVALID_TOKEN_MESSAGE )
         return
 
@@ -255,7 +259,7 @@ def assign_support_to_event(token):
 
         event.support_contact_id = support_id
         session.commit()
-        sentry_sdk.capture_message(f"Collaborateur support assigné avec succès à l'évènement {event_id}", level="info")
+        logger.info(f"Collaborateur support assigné avec succès à l'évènement {event_id}")
         click.echo("Collaborateur support assigné avec succès à l’événement.")
 
     except Exception as e:
