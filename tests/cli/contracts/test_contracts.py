@@ -5,6 +5,7 @@ from app.auth.auth import hash_password, create_token
 from app.models import Collaborator, Client, Contract
 from app.db.session import SessionLocal
 
+
 @pytest.fixture
 def sales_user():
     session = SessionLocal()
@@ -13,23 +14,23 @@ def sales_user():
         last_name="Commercial",
         email="sales@contract.com",
         password=hash_password("test123"),
-        department_id=2  # Département commercial
+        department_id=2,  # Département commercial
     )
     session.add(user)
     session.commit()
-    
+
     yield user
-    
+
     clients = session.query(Client).filter_by(commercial_contact_id=user.id).all()
     for client in clients:
         session.delete(client)
-        
+
     session.commit()
     session.delete(user)
     session.commit()
     session.close()
-    
-    
+
+
 @pytest.fixture
 def manager_user():
     session = SessionLocal()
@@ -38,7 +39,7 @@ def manager_user():
         last_name="Gestion",
         email="manager@contract.com",
         password=hash_password("test123"),
-        department_id=3  # Département gestion
+        department_id=3,  # Département gestion
     )
     session.add(user)
     session.commit()
@@ -46,6 +47,7 @@ def manager_user():
     session.delete(user)
     session.commit()
     session.close()
+
 
 @pytest.fixture
 def client(sales_user):
@@ -56,22 +58,19 @@ def client(sales_user):
         email="bob@client.com",
         phone="0600000000",
         company_name="ClientCorp",
-        commercial_contact_id=sales_user.id
+        commercial_contact_id=sales_user.id,
     )
     session.add(client)
     session.commit()
     yield client
-    
+
     contracts = session.query(Contract).filter_by(client_id=client.id).all()
     for contract in contracts:
         session.delete(contract)
-        
+
     session.delete(client)
     session.commit()
     session.close()
-
-
-
 
 
 def test_create_contract_success(manager_user, client):
@@ -79,12 +78,11 @@ def test_create_contract_success(manager_user, client):
     token = create_token(manager_user.id)
 
     result = runner.invoke(
-        create_contract,
-        args=["--token", token],
-        input=f"{client.id}\n5000\n1000\nN\n"
+        create_contract, args=["--token", token], input=f"{client.id}\n5000\n1000\nN\n"
     )
     assert result.exit_code == 0
     assert "Contrat créé avec succès." in result.output
+
 
 def test_create_contract_unauthorized(sales_user, client):
     runner = CliRunner()
@@ -95,6 +93,7 @@ def test_create_contract_unauthorized(sales_user, client):
     assert result.exit_code == 0
     assert "Accès refusé" in result.output
 
+
 def test_update_contract_success(manager_user, client):
     session = SessionLocal()
 
@@ -103,7 +102,7 @@ def test_update_contract_success(manager_user, client):
         amount=1000,
         remaining_amount=1000,
         signed=False,
-        sales_contact_id=client.commercial_contact_id
+        sales_contact_id=client.commercial_contact_id,
     )
     session.add(contract)
     session.commit()
@@ -111,7 +110,9 @@ def test_update_contract_success(manager_user, client):
     runner = CliRunner()
     token = create_token(manager_user.id)
 
-    result = runner.invoke(update_contract, input=f"{token}\n{contract.id}\n1000\n0\nN\n")
+    result = runner.invoke(
+        update_contract, input=f"{token}\n{contract.id}\n1000\n0\nN\n"
+    )
 
     assert result.exit_code == 0
     assert "Contrat mis à jour avec succès" in result.output
@@ -119,6 +120,7 @@ def test_update_contract_success(manager_user, client):
     session.delete(contract)
     session.commit()
     session.close()
+
 
 def test_update_contract_not_found(manager_user):
     runner = CliRunner()
@@ -129,6 +131,7 @@ def test_update_contract_not_found(manager_user):
     assert result.exit_code == 0
     assert "Contrat introuvable" in result.output
 
+
 def test_update_contract_unauthorized_user(sales_user, client):
     session = SessionLocal()
 
@@ -137,7 +140,7 @@ def test_update_contract_unauthorized_user(sales_user, client):
         amount=1500,
         remaining_amount=1500,
         signed=False,
-        sales_contact_id=sales_user.id
+        sales_contact_id=sales_user.id,
     )
     session.add(contract)
     session.commit()
@@ -145,8 +148,9 @@ def test_update_contract_unauthorized_user(sales_user, client):
     runner = CliRunner()
     token = create_token(5)
 
-    result = runner.invoke(update_contract, input=f"{token}\n{contract.id}\n2000\n1500\nN\n")
-
+    result = runner.invoke(
+        update_contract, input=f"{token}\n{contract.id}\n2000\n1500\nN\n"
+    )
 
     # Ce commercial ne doit pas pouvoir modifier le contrat
     assert result.exit_code == 0

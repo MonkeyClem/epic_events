@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 from app.models.base import Base
 
 
-
 class Event(Base):
     __tablename__ = "events"
 

@@ -5,6 +5,7 @@ from app.auth.auth import verify_token
 from app.models.collaborator import Collaborator
 import sentry_sdk
 
+
 def check_permission(allowed_departments):
     def decorator(f):
         @wraps(f)
@@ -35,4 +36,5 @@ def check_permission(allowed_departments):
                 click.echo(f"Erreur de permission : {str(e)}")
 
         return wrapper
+
     return decorator

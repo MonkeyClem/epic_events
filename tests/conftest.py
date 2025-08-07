@@ -3,11 +3,13 @@ from app.db.session import SessionLocal
 from app.models import Department, Collaborator
 from app.auth.auth import create_token, hash_password
 
+
 @pytest.fixture(scope="session")
 def db():
     session = SessionLocal()
     yield session
     session.close()
+
 
 @pytest.fixture(scope="session")
 def create_user(db):
@@ -25,11 +27,12 @@ def create_user(db):
             last_name=last_name,
             email=email,
             password=hash_password(password),
-            department_id=dept.id
+            department_id=dept.id,
         )
         db.add(user)
         db.commit()
         return user
+
     return _create_user
 
 

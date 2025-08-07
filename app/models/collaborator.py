@@ -5,8 +5,9 @@ from sqlalchemy.orm import relationship
 from app.models.base import Base
 from app.auth.auth import hash_password
 
+
 class Collaborator(Base):
-    __tablename__ = 'collaborators'
+    __tablename__ = "collaborators"
 
     id = Column(Integer, primary_key=True)
     first_name = Column(String, nullable=False)

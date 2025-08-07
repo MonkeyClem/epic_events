@@ -17,20 +17,21 @@ def fake_sales_user():
         last_name="Commercial",
         email="sales@test.com",
         password=hash_password("test123"),
-        department_id=2  # Département commercial
+        department_id=2,  # Département commercial
     )
     session.add(user)
     session.commit()
     yield user
-    
+
     clients = session.query(Client).filter_by(commercial_contact_id=user.id).all()
     for client in clients:
         session.delete(client)
     session.commit()
-    
+
     session.delete(user)
     session.commit()
     session.close()
+
 
 @pytest.fixture
 def existing_client(fake_sales_user):
@@ -41,7 +42,7 @@ def existing_client(fake_sales_user):
         email="alice@old.com",
         phone="0000000000",
         company_name="OldCorp",
-        commercial_contact_id=fake_sales_user.id
+        commercial_contact_id=fake_sales_user.id,
     )
     session.add(client)
     session.commit()
@@ -49,8 +50,8 @@ def existing_client(fake_sales_user):
     session.delete(client)
     session.commit()
     session.close()
-    
-    
+
+
 @pytest.fixture
 def fake_support_user():
     session = SessionLocal()
@@ -59,7 +60,7 @@ def fake_support_user():
         last_name="Support",
         email="support@test.com",
         password=hash_password("test123"),
-        department_id=3  # Département support
+        department_id=3,  # Département support
     )
     session.add(user)
     session.commit()
@@ -68,7 +69,7 @@ def fake_support_user():
     session.commit()
     session.close()
 
-    
+
 @pytest.fixture
 def another_client():
     session = SessionLocal()
@@ -78,7 +79,7 @@ def another_client():
         email="bob@client.com",
         phone="0707070707",
         company_name="NoAccessCorp",
-        commercial_contact_id=9  
+        commercial_contact_id=9,
     )
     session.add(client)
     session.commit()
@@ -86,51 +87,60 @@ def another_client():
     session.delete(client)
     session.commit()
     session.close()
-    
-    
-    
-    
+
+
 def test_create_client_success(fake_sales_user):
     runner = CliRunner()
-    
+
     token = create_token(fake_sales_user.id)
-    
-    test_input = "\n".join([
-        token,
-        "ClientFirst",     
-        "ClientLast",      
-        "client@example.com",  
-        "+1234567890",     
-        "TestCorp"         
-    ]) + "\n"
-    
+
+    test_input = (
+        "\n".join(
+            [
+                token,
+                "ClientFirst",
+                "ClientLast",
+                "client@example.com",
+                "+1234567890",
+                "TestCorp",
+            ]
+        )
+        + "\n"
+    )
+
     result = runner.invoke(create_client, input=test_input)
 
     assert result.exit_code == 0
     assert "Client ClientFirst ClientLast ajouté avec succès." in result.output
 
 
-def test_create_client_failed(fake_support_user): 
+def test_create_client_failed(fake_support_user):
     runner = CliRunner()
-    
+
     token = create_token(fake_support_user.id)
-    
-    test_input = "\n".join([
-        token,
-        "ClientFirst",     
-        "ClientLast",      
-        "client@example.com",  
-        "+1234567890",     
-        "TestCorp"         
-    ]) + "\n"
-    
+
+    test_input = (
+        "\n".join(
+            [
+                token,
+                "ClientFirst",
+                "ClientLast",
+                "client@example.com",
+                "+1234567890",
+                "TestCorp",
+            ]
+        )
+        + "\n"
+    )
+
     result = runner.invoke(create_client, input=test_input)
 
     assert result.exit_code == 0
-    assert "Accès refusé : cette action est réservée au(x) département(s) : commercial" in result.output
-    
-    
-    
+    assert (
+        "Accès refusé : cette action est réservée au(x) département(s) : commercial"
+        in result.output
+    )
+
 
 def test_update_client_success(fake_sales_user, existing_client):
     runner = CliRunner()
@@ -148,15 +158,22 @@ def test_update_client_success(fake_sales_user, existing_client):
     assert updated.last_name == "Updated"
     assert updated.email == "alice@new.com"
     session.close()
-    
+
+
 def test_update_client_unauthorized(fake_support_user, another_client):
     runner = CliRunner()
     token = create_token(fake_support_user.id)
 
-    input_data = f"{token}\n{another_client.id}\nNew\nName\nnew@mail.com\n0000000000\nNewCorp\n"
+    input_data = (
+        f"{token}\n{another_client.id}\nNew\nName\nnew@mail.com\n0000000000\nNewCorp\n"
+    )
     result = runner.invoke(update_client, input=input_data)
 
     assert result.exit_code == 0
-    assert "Accès refusé : cette action est réservée au(x) département(s) : commercial" in result.output
-    
-#TODO : Implémenter le test pour un commercial qui n'est pas celui attitré 
+    assert (
+        "Accès refusé : cette action est réservée au(x) département(s) : commercial"
+        in result.output
+    )
+
+
+# TODO : Implémenter le test pour un commercial qui n'est pas celui attitré

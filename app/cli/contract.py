@@ -13,8 +13,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 @click.command("list-contracts")
-@click.option('--token', prompt=True, help='Jeton JWT pour authentification')
+@click.option("--token", prompt=True, help="Jeton JWT pour authentification")
 def list_contracts(token):
     user_id = verify_token(token)
     if not user_id:
@@ -43,8 +44,10 @@ def list_contracts(token):
 def create_contract(token):
     user_id = verify_token(token)
     if not user_id:
-        logger.info("Tentative de création d'un contrat avec un token invalide ou expiré")
-        click.echo(INVALID_TOKEN_MESSAGE )
+        logger.info(
+            "Tentative de création d'un contrat avec un token invalide ou expiré"
+        )
+        click.echo(INVALID_TOKEN_MESSAGE)
         return
 
     session = SessionLocal()
@@ -56,11 +59,14 @@ def create_contract(token):
             return
 
         sales_contact_id = client.commercial_contact_id
-        
+
         print("client dans la création de contrat : ", client)
 
         amount = click.prompt("Montant", type=float)
-        already_payed_amount=click.prompt('Si une partie du montant a déjà été réglé, merci de bien vouloir indiquer la somme ici :', type=float)
+        already_payed_amount = click.prompt(
+            "Si une partie du montant a déjà été réglé, merci de bien vouloir indiquer la somme ici :",
+            type=float,
+        )
         signed = click.confirm("Contrat signé ?")
         signed_date = datetime.now() if signed else None
 
@@ -68,9 +74,9 @@ def create_contract(token):
             client_id=client_id,
             sales_contact_id=sales_contact_id,
             amount=amount,
-            remaining_amount=amount-already_payed_amount,
+            remaining_amount=amount - already_payed_amount,
             signed=signed,
-            signed_date=signed_date
+            signed_date=signed_date,
         )
 
         session.add(contract)
@@ -91,7 +97,9 @@ def update_contract(token):
     try:
         user_id = verify_token(token)
         if not user_id:
-            logger.info("Tentative de mise à jour d'un contrat avec un token invalide ou expiré")
+            logger.info(
+                "Tentative de mise à jour d'un contrat avec un token invalide ou expiré"
+            )
             click.echo(INVALID_TOKEN_MESSAGE)
             return
 
@@ -116,25 +124,34 @@ def update_contract(token):
             click.echo("Contrat introuvable.")
             return
 
-        if user.department.name == "commercial" and contract.sales_contact_id != user.id:
+        if (
+            user.department.name == "commercial"
+            and contract.sales_contact_id != user.id
+        ):
             click.echo("Vous n’êtes pas autorisé à modifier ce contrat.")
             return
 
-        contract.amount = click.prompt("Montant total", default=contract.amount, type=float)
-        contract.remaining_amount = click.prompt("Montant restant", default=contract.remaining_amount, type=float)
+        contract.amount = click.prompt(
+            "Montant total", default=contract.amount, type=float
+        )
+        contract.remaining_amount = click.prompt(
+            "Montant restant", default=contract.remaining_amount, type=float
+        )
 
         session.commit()
-        logger.info(f"Contrat {contract_id} mis à jour avec succès par l'utiisateur {user_id}")
+        logger.info(
+            f"Contrat {contract_id} mis à jour avec succès par l'utiisateur {user_id}"
+        )
         click.echo("Contrat mis à jour avec succès")
 
     except Exception as e:
         sentry_sdk.capture_exception(e)
         click.echo(f"Erreur lors de la mise à jour du contrat : {e}")
-        
-    finally: 
+
+    finally:
         session.close()
-        
-        
+
+
 @click.command("filter-contracts")
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
 @check_permission(["commercial", "gestion"])
@@ -142,7 +159,7 @@ def filter_contracts(token):
     """Affiche les contrats filtrés (non signés ou non payés)"""
     user_id = verify_token(token)
     if not user_id:
-        click.echo(INVALID_TOKEN_MESSAGE )
+        click.echo(INVALID_TOKEN_MESSAGE)
         return
 
     click.echo("\n📋 Critères de filtrage disponibles :")
@@ -183,45 +200,54 @@ def filter_contracts(token):
         click.echo(f"Erreur lors du filtrage : {e}")
     finally:
         session.close()
-        
-        
+
+
 @click.command("sign-contracts")
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
 @check_permission(["commercial", "gestion"])
 def sign_contract(token):
     user_id = verify_token(token)
     if not user_id:
-        click.echo(INVALID_TOKEN_MESSAGE )
-        logger.info('Tentative de signature de contrat avec un token expiré ou invalide')
+        click.echo(INVALID_TOKEN_MESSAGE)
+        logger.info(
+            "Tentative de signature de contrat avec un token expiré ou invalide"
+        )
         return
-    
-    try :
+
+    try:
         session = SessionLocal()
         user = session.get(Collaborator, user_id)
-        
+
         contract_id = click.prompt("ID du contrat à modifier", type=int)
         contract = session.query(Contract).get(contract_id)
-        
+
         if user.department_id == 2 and contract.sales_contact_id != user_id:
-            click.echo("Vous n'êtes pas autorisé à signer le contrat d'un autre commercial")
-            logger.info('Tentative de signature de contrat par un utilisateur non autorisé')
+            click.echo(
+                "Vous n'êtes pas autorisé à signer le contrat d'un autre commercial"
+            )
+            logger.info(
+                "Tentative de signature de contrat par un utilisateur non autorisé"
+            )
             return
-            
+
         if contract.signed == True:
             click.echo("Ce contrat est déjà signé")
             return
-            
-        contract.signed = click.confirm("Souhaitez vous modifier le statut du contrat ?", default=contract.signed)
-        
-        if contract.signed == True :
-            contract.signed_date = datetime.now()
-            
-        session.commit()
-        logger.info(f"Contrat {contract_id} signé avec succès par l'utiisateur {user_id}")
 
-        
-    except Exception as e: 
+        contract.signed = click.confirm(
+            "Souhaitez vous modifier le statut du contrat ?", default=contract.signed
+        )
+
+        if contract.signed == True:
+            contract.signed_date = datetime.now()
+
+        session.commit()
+        logger.info(
+            f"Contrat {contract_id} signé avec succès par l'utiisateur {user_id}"
+        )
+
+    except Exception as e:
         sentry_sdk.capture_exception(e)
-        
+
     finally:
         session.close()
