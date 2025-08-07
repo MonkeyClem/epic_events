@@ -31,7 +31,7 @@ def list_clients(token):
 def create_client(token):
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message('Tentative de création de client avec un token invalide ou expiré')
+        sentry_sdk.capture_message('Tentative de création de client avec un token invalide ou expiré', level="info")
         click.echo(INVALID_TOKEN_MESSAGE)
         return
 
@@ -54,7 +54,7 @@ def create_client(token):
         )
         session.add(client)
         session.commit()
-        sentry_sdk.capture_message(f"Création du client {first_name} {last_name}, pour l'entreprise {company_name} ajouté avec succès. ")
+        sentry_sdk.capture_message(f"Création du client {first_name} {last_name}, pour l'entreprise {company_name} ajouté avec succès.", level="info")
         click.echo(f"Client {first_name} {last_name} ajouté avec succès.")
 
     except Exception as e:
@@ -68,7 +68,7 @@ def create_client(token):
 def update_client(token):
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentaive de mise à jour de clients avec un token non valide")
+        sentry_sdk.capture_message("Tentaive de mise à jour de clients avec un token non valide", level="info")
         click.echo(INVALID_TOKEN_MESSAGE )
         return
 
@@ -99,7 +99,7 @@ def update_client(token):
         client.company_name = click.prompt("Entreprise", default=client.company_name)
 
         session.commit()
-        sentry_sdk.capture_message(f"Client {client_id} mis à jour avec succès par l'utiisateur {user_id}")
+        sentry_sdk.capture_message(f"Client {client_id} mis à jour avec succès par l'utiisateur {user_id}", level="info")
         click.echo("Client mis à jour avec succès.")
         
     except Exception as e:

@@ -15,7 +15,7 @@ from app.auth.auth import verify_token
 def list_contracts(token):
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative de lister les contrats avec un token invalide ou expiré")
+        sentry_sdk.capture_message("Tentative de lister les contrats avec un token invalide ou expiré", level="info")
         click.echo(INVALID_TOKEN_MESSAGE)
         return
 
@@ -40,7 +40,7 @@ def list_contracts(token):
 def create_contract(token):
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative de création d'un contrat avec un token invalide ou expiré")
+        sentry_sdk.capture_message("Tentative de création d'un contrat avec un token invalide ou expiré", level="info")
         click.echo(INVALID_TOKEN_MESSAGE )
         return
 
@@ -72,7 +72,7 @@ def create_contract(token):
 
         session.add(contract)
         session.commit()
-        sentry_sdk.capture_message(f"Contrat crée avec succès par l'utiisateur {user_id}")
+        sentry_sdk.capture_message(f"Contrat crée avec succès par l'utiisateur {user_id}", level="info")
         click.echo("Contrat créé avec succès.")
     except Exception as e:
         session.rollback()
@@ -88,7 +88,7 @@ def update_contract(token):
     try:
         user_id = verify_token(token)
         if not user_id:
-            sentry_sdk.capture_message("Tentative de mise à jour d'un contrat avec un token invalide ou expiré")
+            sentry_sdk.capture_message("Tentative de mise à jour d'un contrat avec un token invalide ou expiré", level="info")
             click.echo(INVALID_TOKEN_MESSAGE)
             return
 
@@ -121,7 +121,7 @@ def update_contract(token):
         contract.remaining_amount = click.prompt("Montant restant", default=contract.remaining_amount, type=float)
 
         session.commit()
-        sentry_sdk.capture_message(f"Contrat {contract_id} mis à jour avec succès par l'utiisateur {user_id}")
+        sentry_sdk.capture_message(f"Contrat {contract_id} mis à jour avec succès par l'utiisateur {user_id}", level="info")
         click.echo("Contrat mis à jour avec succès")
 
     except Exception as e:
@@ -189,7 +189,7 @@ def sign_contract(token):
     user_id = verify_token(token)
     if not user_id:
         click.echo(INVALID_TOKEN_MESSAGE )
-        sentry_sdk.capture_message('Tentative de signature de contrat avec un token expiré ou invalide')
+        sentry_sdk.capture_message('Tentative de signature de contrat avec un token expiré ou invalide', level="info")
         return
     
     try :
@@ -201,7 +201,7 @@ def sign_contract(token):
         
         if user.department_id == 2 and contract.sales_contact_id != user_id:
             click.echo("Vous n'êtes pas autorisé à signer le contrat d'un autre commercial")
-            sentry_sdk.capture_message('Tentative de signature de contrat par un utilisateur non autorisé')
+            sentry_sdk.capture_message('Tentative de signature de contrat par un utilisateur non autorisé', level="info")
             return
             
         if contract.signed == True:
@@ -214,7 +214,7 @@ def sign_contract(token):
             contract.signed_date = datetime.now()
             
         session.commit()
-        sentry_sdk.capture_message(f"Contrat {contract_id} signé avec succès par l'utiisateur {user_id}")
+        sentry_sdk.capture_message(f"Contrat {contract_id} signé avec succès par l'utiisateur {user_id}", level="info")
 
         
     except Exception as e: 

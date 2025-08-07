@@ -12,7 +12,7 @@ from app.models import Collaborator
 def create_collaborator(token): 
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative de création de collaborateur avec token invalide ou expiré")
+        sentry_sdk.capture_message("Tentative de création de collaborateur avec token invalide ou expiré" , level="info")
         click.echo(INVALID_TOKEN_MESSAGE )
         return
 
@@ -37,7 +37,7 @@ def create_collaborator(token):
         )
         session.add(collaborator)
         session.commit()
-        sentry_sdk.capture_message(f"Collaborateur {collaborator_name} {collaborator_lastname} ajouté avec succès par l'utiisateur {user_id}")
+        sentry_sdk.capture_message(f"Collaborateur {collaborator_name} {collaborator_lastname} ajouté avec succès par l'utiisateur {user_id}" , level="info")
         click.echo("Collaborateur créé avec succès.")
     except Exception as e: 
         session.rollback()
@@ -56,7 +56,7 @@ def update_collaborator(token):
     """Met à jour les infos d’un collaborateur (gestion uniquement)"""
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative de mise à jour d'un collaborateur avec un token expiré ou invalide")
+        sentry_sdk.capture_message("Tentative de mise à jour d'un collaborateur avec un token expiré ou invalide", level="info")
         click.echo(INVALID_TOKEN_MESSAGE )
         return
 
@@ -81,7 +81,7 @@ def update_collaborator(token):
         collaborator.department_id = new_department_id
 
         session.commit()
-        sentry_sdk.capture_message(f"Collaborateur {new_first_name} {new_last_name} mis à jour avec succès par l'utiisateur {user_id}")
+        sentry_sdk.capture_message(f"Collaborateur {new_first_name} {new_last_name} mis à jour avec succès par l'utiisateur {user_id}", level="info")
         click.echo("Collaborateur mis à jour avec succès.")
     except Exception as e:
         session.rollback()
@@ -99,7 +99,7 @@ def delete_collaborator(token):
     """Supprime un collaborateur (gestion uniquement)"""
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative de suppression d'un collaborateur avec un token invalide ou expiré")
+        sentry_sdk.capture_message("Tentative de suppression d'un collaborateur avec un token invalide ou expiré", level="info")
         click.echo(INVALID_TOKEN_MESSAGE )
         return
 
@@ -119,7 +119,7 @@ def delete_collaborator(token):
 
         session.delete(collaborator)
         session.commit()
-        sentry_sdk.capture_message(f"Collaborateur {collab_id} supprimé avec succès par l'utiisateur {user_id}")
+        sentry_sdk.capture_message(f"Collaborateur {collab_id} supprimé avec succès par l'utiisateur {user_id}", level="info")
         click.echo("Collaborateur supprimé avec succès.")
     except Exception as e:
         session.rollback()
@@ -136,7 +136,7 @@ def list_collaborators(token):
     """Affiche la liste des collaborateurs (gestion uniquement)"""
     user_id = verify_token(token)
     if not user_id:
-        sentry_sdk.capture_message("Tentative de listing des collaborateurs avec un token invalide ou expiré")
+        sentry_sdk.capture_message("Tentative de listing des collaborateurs avec un token invalide ou expiré", level="info")
         click.echo(INVALID_TOKEN_MESSAGE )
         return
 
