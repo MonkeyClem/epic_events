@@ -8,7 +8,7 @@ from app.models.collaborator import Collaborator
 import logging
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.INFO)
 
 @click.command("create-collaborator")
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")

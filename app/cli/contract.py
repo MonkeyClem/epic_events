@@ -11,7 +11,7 @@ from app.auth.auth import verify_token
 import logging
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.INFO)
 
 @click.command("list-contracts")
 @click.option("--token", prompt=True, help="Jeton JWT pour authentification")

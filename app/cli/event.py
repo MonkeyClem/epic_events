@@ -12,6 +12,7 @@ from app.auth.auth import verify_token
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 @click.command("list-events")
@@ -53,7 +54,7 @@ def create_event(token):
     # )
     contracts = (
         session.query(Contract)
-        .filter(Contract.signed.is_(True), Contract.event.is_(None))
+        .filter(Contract.signed is True, Contract.event is None)
         .all()
     )
 
