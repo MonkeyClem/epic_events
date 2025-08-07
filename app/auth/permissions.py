@@ -17,7 +17,7 @@ def check_permission(allowed_departments):
             try:
                 user_id = verify_token(token)
                 session = SessionLocal()
-                user = session.query(Collaborator).get(user_id)
+                user = session.get(Collaborator, user_id)
                 if not user or not user.department:
                     click.echo("Utilisateur ou département introuvable.")
                     return

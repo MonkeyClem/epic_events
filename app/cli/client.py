@@ -74,13 +74,13 @@ def update_client(token):
 
     session = SessionLocal()
     try:
-        user = session.query(Collaborator).get(user_id)
+        user = session.get(Collaborator, user_id)
         clients = session.query(Client).all()
         for c in clients:
             click.echo(f"{c.id} - {c.first_name} {c.last_name} ({c.email})")
 
         client_id = click.prompt("ID du client à modifier", type=int)
-        client = session.query(Client).get(client_id)
+        client = session.get(Client, client_id)
 
         if not client:
             click.echo("Client introuvable.")

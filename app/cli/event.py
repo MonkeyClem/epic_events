@@ -110,12 +110,13 @@ def update_event(token):
 
     session = SessionLocal()
     try:
-        user = session.query(Collaborator).get(user_id)
+        user = session.get(Collaborator, user_id)
+        
         if not user:
             click.echo("Utilisateur introuvable.")
             return
 
-        if user.department.name.lower() == "support":
+        if user.department_id == 1:
             # Le support ne peut voir que SES événements
             events = session.query(Event).filter_by(support_contact_id=user_id).all()
         else:

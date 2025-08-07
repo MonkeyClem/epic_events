@@ -93,7 +93,7 @@ def update_contract(token):
             return
 
         session = SessionLocal()
-        user = session.query(Collaborator).get(user_id)
+        user = session.get(Collaborator, user_id)
 
         contracts = session.query(Contract).all()
         if not contracts:
@@ -194,7 +194,7 @@ def sign_contract(token):
     
     try :
         session = SessionLocal()
-        user = session.query(Collaborator).get(user_id)
+        user = session.get(Collaborator, user_id)
         
         contract_id = click.prompt("ID du contrat à modifier", type=int)
         contract = session.query(Contract).get(contract_id)
