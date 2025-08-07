@@ -122,7 +122,7 @@ def update_contract(token):
 
         session.commit()
         sentry_sdk.capture_message(f"Contrat {contract_id} mis à jour avec succès par l'utiisateur {user_id}")
-        click.echo("Contrat mis à jour avec succès.")
+        click.echo("Contrat mis à jour avec succès")
 
     except Exception as e:
         sentry_sdk.capture_exception(e)
