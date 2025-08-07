@@ -8,7 +8,6 @@ from app.models.client import Client
 from app.models.collaborator import Collaborator
 from app.models.contract import Contract
 from app.auth.auth import verify_token
-from app.models.collaborator import Collaborator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -174,12 +173,12 @@ def filter_contracts(token):
         query = session.query(Contract)
 
         if choix == 1:
-            contracts = query.filter(Contract.signed == False).all()
+            contracts = query.filter(Contract.signed.is_(False)).all()
         elif choix == 2:
             contracts = query.filter(Contract.remaining_amount > 0).all()
         elif choix == 3:
             contracts = query.filter(
-                (Contract.signed == False) | (Contract.remaining_amount > 0)
+                (Contract.signed.is_(False)) | (Contract.remaining_amount > 0)
             ).all()
         else:
             click.echo("Choix invalide.")
@@ -230,7 +229,7 @@ def sign_contract(token):
             )
             return
 
-        if contract.signed == True:
+        if contract.signed is True:
             click.echo("Ce contrat est déjà signé")
             return
 
@@ -238,7 +237,7 @@ def sign_contract(token):
             "Souhaitez vous modifier le statut du contrat ?", default=contract.signed
         )
 
-        if contract.signed == True:
+        if contract.signed is True:
             contract.signed_date = datetime.now()
 
         session.commit()

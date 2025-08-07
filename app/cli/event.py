@@ -9,7 +9,6 @@ from app.models.contract import Contract
 import sentry_sdk
 from app.db.session import SessionLocal
 from app.auth.auth import verify_token
-from app.models.collaborator import Collaborator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -47,9 +46,14 @@ def create_event(token):
     user_id = verify_token(token)
     session = SessionLocal()
 
+    # contracts = (
+    #     session.query(Contract)
+    #     .filter(Contract.signed == True, Contract.event == None)
+    #     .all()
+    # )
     contracts = (
         session.query(Contract)
-        .filter(Contract.signed == True, Contract.event == None)
+        .filter(Contract.signed.is_(True), Contract.event.is_(None))
         .all()
     )
 
@@ -93,7 +97,6 @@ def create_event(token):
         attendees=attendees,
         notes=notes,
         contract_id=contract_id,
-        # support_contact_id=
     )
 
     session.add(event)
@@ -159,10 +162,6 @@ def update_event(token):
         event.location = click.prompt("Emplacement", default=event.location)
 
         try:
-            # date_start_str = click.prompt("Date de début (YYYY-MM-DD HH:MM)", default=(event.date_start))
-            # event.date_start = datetime.strptime(date_start_str, "%Y-%m-%d %H:%M")
-            # date_end_str = click.prompt("Date de fin (YYYY-MM-DD HH:MM)", default=event.date_end)
-            # event.date_end = datetime.strptime(date_end_str, "%Y-%m-%d %H:%M")
             date_start_str = click.prompt(
                 "Date de début (YYYY-MM-DD HH:MM)",
                 default=event.date_start.strftime("%Y-%m-%d %H:%M"),
@@ -218,7 +217,7 @@ def list_unassigned_events(token):
 
     session = SessionLocal()
     try:
-        events = session.query(Event).filter(Event.support_contact_id == None).all()
+        events = session.query(Event).filter(Event.support_contact_id.is_(None)).all()
 
         if not events:
             click.echo("Tous les événements ont un support assigné.")
@@ -251,8 +250,8 @@ def assign_support_to_event(token):
 
     session = SessionLocal()
     try:
-        #
-        events = session.query(Event).filter(Event.support_contact_id == None).all()
+
+        events = session.query(Event).filter(Event.support_contact_id.is_(None)).all()
         if not events:
             click.echo("Tous les événements ont déjà un support.")
             return

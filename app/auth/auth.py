@@ -1,7 +1,6 @@
 import bcrypt
 import jwt
 import os
-import sentry_sdk
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
