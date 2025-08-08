@@ -4,7 +4,7 @@ Epic Events est une application en ligne de commande (CLI) développée en Pytho
 
 ---
 
-## 🔧 Fonctionnalités
+## Fonctionnalités
 
 - 🔐 Authentification JWT
 - 🧑‍💼 Gestion des collaborateurs (création, modification..)
@@ -17,7 +17,7 @@ Epic Events est une application en ligne de commande (CLI) développée en Pytho
 
 ---
 
-## 🚀 Installation
+## Installation
 
 1. Cloner le projet
 
@@ -86,8 +86,6 @@ Le projet utilise Sentry pour remonter les erreurs et messages d’information :
 Toutes les exceptions critiques sont capturées via capture_exception()
 Les actions importantes (signature, création…) via logger.info()
 Le DSN est stocké dans une variable d’environnement : SENTRY_DSN=https://xxx@o12345.ingest.sentry.io/12345
-
-
 
 
 ![alt text](epic_event_database_schema.png)
