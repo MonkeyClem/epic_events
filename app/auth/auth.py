@@ -10,14 +10,12 @@ JWT_SECRET = os.getenv("JWT_SECRET", "dev_secret_key")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_MINUTES = 30
 
-# -------------------- PASSWORD FUNCTION --------------------
-
+# -------------------- PASSWORD HASH----------
 
 def hash_password(plain_password: str) -> str:
     return bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt()).decode(
         "utf-8"
     )
-
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(

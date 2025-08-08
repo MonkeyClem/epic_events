@@ -47,11 +47,6 @@ def create_event(token):
     user_id = verify_token(token)
     session = SessionLocal()
 
-    # contracts = (
-    #     session.query(Contract)
-    #     .filter(Contract.signed == True, Contract.event == None)
-    #     .all()
-    # )
     contracts = (
         session.query(Contract)
         .filter(Contract.signed is True, Contract.event is None)
@@ -138,7 +133,7 @@ def update_event(token):
             click.echo("Aucun événement disponible à modifier.")
             return
 
-        click.echo("\n📋 Événements disponibles :")
+        click.echo("\n📋Événements disponibles :")
         for e in events:
             click.echo(
                 f"[{e.id}] {e.name} | Début : {e.date_start} | Lieu : {e.location}"

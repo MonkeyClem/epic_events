@@ -16,4 +16,4 @@ class Client(Base):
         Integer, ForeignKey("collaborators.id"), nullable=False
     )
 
-    contracts = relationship("Contract", back_populates="client")
+    contracts = relationship("Contract", back_populates="client", cascade="all, delete-orphan")
