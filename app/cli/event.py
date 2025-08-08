@@ -18,7 +18,21 @@ logger.setLevel(logging.INFO)
 @click.command("list-events")
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
 def list_events(token):
-    """Affiche la liste des événements"""
+    """
+    Affiche la liste des événements.
+
+    Vérifie l'authentification avec le jeton JWT fourni, puis récupère et affiche 
+    tous les événements disponibles.
+    Pas besoin de check_permissions car tous les utilisateurs doivent pouvoir accéder 
+    à tous les évènements en lecture seule
+    
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+    
     try:
         verify_token(token)
     except Exception as e:
@@ -44,6 +58,18 @@ def list_events(token):
 @click.option("--token", prompt=True, help="Jeton JWT d'authentification")
 @check_permission(["commercial"])
 def create_event(token):
+    """
+    Crée un événement en lien avec un contrat signé.
+
+    Vérifie le jeton JWT pour l'authentification, récupère les contrats signés 
+    disponibles, et permet de créer un événement en les associant à un contrat.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
     user_id = verify_token(token)
     session = SessionLocal()
 
@@ -105,7 +131,19 @@ def create_event(token):
 @click.option("--token", prompt=True, help="Token JWT")
 @check_permission(["support", "gestion"])
 def update_event(token):
-    """Met à jour un événement (support ou gestion)"""
+    """
+    Met à jour un événement pour les utilisateurs support ou gestion.
+
+    Vérifie l'authentification avec le jeton JWT et permet aux utilisateurs 
+    des départements "support" ou "gestion" de mettre à jour un événement 
+    existant.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
     user_id = verify_token(token)
     if not user_id:
         logger.info(
@@ -197,12 +235,23 @@ def update_event(token):
     finally:
         session.close()
 
-
 @click.command("list-unassigned-events")
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
 @check_permission(["gestion", "support"])
 def list_unassigned_events(token):
-    """Liste les événements sans collaborateur support assigné."""
+    """
+    Liste les événements sans collaborateur support assigné.
+
+    Permet aux utilisateurs "gestion" ou "support" de voir les événements 
+    qui n'ont pas encore de support assigné.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+    
     user_id = verify_token(token)
     if not user_id:
         logger.info(
@@ -235,7 +284,19 @@ def list_unassigned_events(token):
 @click.option("--token", prompt=True, help="Token JWT")
 @check_permission(["gestion"])
 def assign_support_to_event(token):
-    """Assigne un collaborateur support à un événement"""
+    """
+    Assigne un collaborateur support à un événement.
+
+    Permet à un utilisateur du département "gestion" d'assigner un collaborateur 
+    support à un événement sans support assigné.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+    
     user_id = verify_token(token)
     if not user_id:
         logger.info(
