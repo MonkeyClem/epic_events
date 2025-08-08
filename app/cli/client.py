@@ -15,6 +15,19 @@ logger.setLevel(logging.INFO)
 @click.command("list-clients")
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
 def list_clients(token):
+    """
+    Affiche la liste des clients.
+
+    Vérifie l'authentification avec le jeton JWT fourni et récupère tous les clients 
+    dans la base de données, puis les affiche.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+    
     verify_token(token)
     session = SessionLocal()
     clients = session.query(Client).all()
@@ -33,6 +46,20 @@ def list_clients(token):
 @click.option("--token", prompt=True, help="Token d'authentification JWT")
 @check_permission(["commercial"])
 def create_client(token):
+    """
+    Crée un nouveau client.
+
+    Vérifie l'authentification avec le jeton JWT et crée un client dans la base de données 
+    avec les informations fournies par l'utilisateur, seulement si l'utilisateur a le rôle 
+    "commercial".
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+    
     user_id = verify_token(token)
     if not user_id:
         logger.info("Tentative de création de client avec un token invalide ou expiré")
@@ -72,6 +99,20 @@ def create_client(token):
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
 @check_permission(["commercial"])
 def update_client(token):
+    """
+    Met à jour les informations d'un client existant.
+
+    Vérifie l'authentification avec le jeton JWT et permet à un utilisateur du rôle 
+    "commercial" de mettre à jour les informations d'un client dans la base de données, 
+    mais uniquement si l'utilisateur est le commercial responsable du client.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+    
     user_id = verify_token(token)
     if not user_id:
         logger.info("Tentaive de mise à jour de clients avec un token non valide")
