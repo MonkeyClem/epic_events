@@ -4,7 +4,7 @@ Epic Events est une application en ligne de commande (CLI) développée en Pytho
 
 ---
 
-##Fonctionnalités
+## Fonctionnalités
 
 - 🔐 Authentification JWT
 - 🧑‍💼 Gestion des collaborateurs (création, modification..)
@@ -17,7 +17,7 @@ Epic Events est une application en ligne de commande (CLI) développée en Pytho
 
 ---
 
-##Installation
+## Installation
 
 1. Cloner le projet
 
