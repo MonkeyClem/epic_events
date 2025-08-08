@@ -12,6 +12,7 @@ JWT_EXPIRATION_MINUTES = 30
 
 # -------------------- PASSWORD HASH----------
 
+
 def hash_password(plain_password: str) -> str:
     """
     Hash un mot de passe en texte clair à l'aide de bcrypt.
@@ -25,6 +26,7 @@ def hash_password(plain_password: str) -> str:
     return bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt()).decode(
         "utf-8"
     )
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """

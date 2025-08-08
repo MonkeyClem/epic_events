@@ -18,7 +18,7 @@ def create_collaborator(token):
     """
     Crée un nouveau collaborateur.
 
-    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur 
+    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur
     ayant le rôle "gestion" de créer un collaborateur dans la base de données.
 
     Args:
@@ -27,7 +27,7 @@ def create_collaborator(token):
     Returns:
         None
     """
-    
+
     user_id = verify_token(token)
     if not user_id:
         logger.info(
@@ -79,8 +79,8 @@ def update_collaborator(token):
     """
     Met à jour les informations d'un collaborateur existant.
 
-    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur 
-    ayant le rôle "gestion" de mettre à jour les informations d'un collaborateur 
+    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur
+    ayant le rôle "gestion" de mettre à jour les informations d'un collaborateur
     dans la base de données.
 
     Args:
@@ -89,7 +89,7 @@ def update_collaborator(token):
     Returns:
         None
     """
-    
+
     user_id = verify_token(token)
     if not user_id:
         logger.info(
@@ -139,8 +139,8 @@ def delete_collaborator(token):
     """
     Supprime un collaborateur.
 
-    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur 
-    ayant le rôle "gestion" de supprimer un collaborateur de la base de données 
+    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur
+    ayant le rôle "gestion" de supprimer un collaborateur de la base de données
     après confirmation.
 
     Args:
