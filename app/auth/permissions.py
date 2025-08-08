@@ -7,6 +7,22 @@ import sentry_sdk
 
 
 def check_permission(allowed_departments):
+    """
+    Un décorateur pour vérifier les permissions d'un utilisateur basé sur son département.
+
+    Ce décorateur vérifie si l'utilisateur associé au jeton d'authentification a un rôle dans l'un 
+    des départements autorisés à effectuer l'action. Si l'utilisateur n'est pas authentifié ou si 
+    son département ne correspond pas aux départements autorisés, l'accès est refusé.
+
+    Args:
+        allowed_departments (list): Liste des départements autorisés à accéder à la fonctionnalité.
+
+    Returns:
+        function: La fonction décorée qui sera exécutée si les permissions sont valides.
+
+    Raises:
+        Exception: Si le jeton est invalide ou que l'utilisateur n'a pas les permissions nécessaires.
+    """
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
