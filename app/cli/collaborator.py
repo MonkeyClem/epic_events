@@ -56,7 +56,6 @@ def create_collaborator(token):
             last_name=collaborator_lastname,
             email=collaborator_email,
             password=hashed_pw,
-            # employee_number = Column(String, unique=True, nullable=True)
             department_id=collaborator_department_id,
         )
         session.add(collaborator)
@@ -108,7 +107,6 @@ def update_collaborator(token):
             click.echo("Collaborateur introuvable.")
             return
 
-        # Champs modifiables
         new_first_name = click.prompt("Prénom", default=collaborator.first_name)
         new_last_name = click.prompt("Nom", default=collaborator.last_name)
         new_email = click.prompt("Email", default=collaborator.email)

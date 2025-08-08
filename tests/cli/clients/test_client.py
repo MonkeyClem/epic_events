@@ -90,6 +90,3 @@ def test_update_client_unauthorized(fake_support_user, another_client):
         "Accès refusé : cette action est réservée au(x) département(s) : commercial"
         in result.output
     )
-
-
-# TODO : Implémenter le test pour un commercial qui n'est pas celui attitré

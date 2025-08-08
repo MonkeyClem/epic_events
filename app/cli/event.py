@@ -97,7 +97,6 @@ def create_event(token):
     name = click.prompt("Nom de l’événement")
     location = click.prompt("Lieu")
 
-    # Date et heure : format strict
     date_start_str = click.prompt("Date et heure de début (YYYY-MM-DD HH:MM)")
     date_end_str = click.prompt("Date et heure de fin (YYYY-MM-DD HH:MM)")
 
@@ -161,10 +160,8 @@ def update_event(token):
             return
 
         if user.department_id == 1:
-            # Le support ne peut voir que SES événements
             events = session.query(Event).filter_by(support_contact_id=user_id).all()
         else:
-            # La gestion peut voir TOUS les événements
             events = session.query(Event).all()
 
         if not events:
@@ -323,7 +320,6 @@ def assign_support_to_event(token):
             click.echo("Événement introuvable.")
             return
 
-        # 2. Afficher les collaborateurs support
         supports = (
             session.query(Collaborator)
             .join(Collaborator.department)
