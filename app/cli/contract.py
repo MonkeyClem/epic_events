@@ -13,6 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 @click.command("list-contracts")
 @click.option("--token", prompt=True, help="Jeton JWT pour authentification")
 def list_contracts(token):
@@ -58,8 +59,6 @@ def create_contract(token):
             return
 
         sales_contact_id = client.commercial_contact_id
-
-        print("client dans la création de contrat : ", client)
 
         amount = click.prompt("Montant", type=float)
         already_payed_amount = click.prompt(

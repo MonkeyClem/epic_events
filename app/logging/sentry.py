@@ -10,6 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent  # = epic_events/
 load_dotenv(dotenv_path=BASE_DIR / ".env")
 SENTRY_DSN = os.getenv("SENTRY_DSN")
 
+
 def init_sentry():
     sentry_logging = LoggingIntegration(level=logging.INFO, event_level=logging.ERROR)
 
@@ -26,7 +27,6 @@ def init_sentry():
         send_default_pii=True,
         before_send=before_send_filter,
         _experiments={
-        "enable_logs": True,
-    },
+            "enable_logs": True,
+        },
     )
-    

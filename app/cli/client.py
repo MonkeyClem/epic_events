@@ -11,6 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 @click.command("list-clients")
 @click.option("--token", prompt=True, help="Jeton d'authentification JWT")
 def list_clients(token):

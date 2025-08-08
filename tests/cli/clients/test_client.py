@@ -1,7 +1,6 @@
 import pytest
 from click.testing import CliRunner
 from app.cli.client import create_client, update_client
-from app.cli.main import login
 from app.auth.auth import create_token
 from app.db.session import SessionLocal
 from app.models.client import Client

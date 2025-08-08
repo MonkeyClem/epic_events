@@ -1,6 +1,10 @@
 import pytest
 from click.testing import CliRunner
-from app.cli.collaborator import create_collaborator, delete_collaborator
+from app.cli.collaborator import (
+    create_collaborator,
+    update_collaborator,
+    delete_collaborator,
+)
 from app.cli.event import create_event, update_event
 from app.auth.auth import create_token
 from app.db.session import SessionLocal
@@ -119,12 +123,9 @@ def test_create_collaborator_success(manager_user):
 
     result = runner.invoke(
         create_collaborator,
-        input=f"John\nDoe\njohn@doe.com\n2\npassword123\n",  # dept 2 = Sales
+        input="John\nDoe\njohn@doe.com\n2\npassword123\n",
         args=["--token", token],
     )
-
-    print("RESULT IN COLLABORATORS TESTS")
-    print(result.output)
 
     assert result.exit_code == 0
     assert "Collaborateur créé avec succès" in result.output
@@ -167,7 +168,10 @@ def test_create_event_success(contract):
     )
 
     assert result.exit_code == 0
-    assert "Événement créé avec succès" or "Aucun contrat signé disponible" in result.output
+    assert (
+        "Événement créé avec succès"
+        or "Aucun contrat signé disponible" in result.output
+    )
 
     session = SessionLocal()
     created_event = session.query(Event).filter_by(name="testName").first()
@@ -213,7 +217,7 @@ def test_update_event_as_support(support_user):
 
 def test_update_event_unauthorized():
     runner = CliRunner()
-    token = create_token(9999)  # faux ID
+    token = create_token(9999)
 
     result = runner.invoke(update_event, args=["--token", token])
 

@@ -10,6 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 @click.command("create-collaborator")
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
 @check_permission(["gestion"])
