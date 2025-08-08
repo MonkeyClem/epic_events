@@ -15,6 +15,19 @@ logger.setLevel(logging.INFO)
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
 @check_permission(["gestion"])
 def create_collaborator(token):
+    """
+    Crée un nouveau collaborateur.
+
+    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur 
+    ayant le rôle "gestion" de créer un collaborateur dans la base de données.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+    
     user_id = verify_token(token)
     if not user_id:
         logger.info(
@@ -64,7 +77,20 @@ def create_collaborator(token):
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
 @check_permission(["gestion"])
 def update_collaborator(token):
-    """Met à jour les infos d’un collaborateur (gestion uniquement)"""
+    """
+    Met à jour les informations d'un collaborateur existant.
+
+    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur 
+    ayant le rôle "gestion" de mettre à jour les informations d'un collaborateur 
+    dans la base de données.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+    
     user_id = verify_token(token)
     if not user_id:
         logger.info(
@@ -112,7 +138,20 @@ def update_collaborator(token):
 @click.option("--token", prompt=True, help="Jeton d’authentification JWT")
 @check_permission(["gestion"])
 def delete_collaborator(token):
-    """Supprime un collaborateur (gestion uniquement)"""
+    """
+    Supprime un collaborateur.
+
+    Vérifie l'authentification avec le jeton JWT fourni et permet à un utilisateur 
+    ayant le rôle "gestion" de supprimer un collaborateur de la base de données 
+    après confirmation.
+
+    Args:
+        token (str): Le jeton JWT d'authentification.
+
+    Returns:
+        None
+    """
+
     user_id = verify_token(token)
     if not user_id:
         logger.info(
