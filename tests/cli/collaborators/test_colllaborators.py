@@ -4,14 +4,11 @@ from app.cli.collaborator import (
     update_collaborator,
     delete_collaborator,
 )
-from app.cli.event import create_event, update_event
 from app.auth.auth import create_token
 from app.db.session import SessionLocal
 from app.models.collaborator import Collaborator
-from app.models.client import Client
-from app.models.contract import Contract
-from app.models.event import Event
 from app.auth.auth import hash_password
+
 
 def test_create_collaborator_success(fake_manager_user):
     runner = CliRunner()
@@ -32,6 +29,7 @@ def test_create_collaborator_success(fake_manager_user):
         session.delete(created_user)
         session.commit()
     session.close()
+
 
 def test_create_collaborator_unauthorized():
     runner = CliRunner()
@@ -56,11 +54,12 @@ def test_update_collaborator_success(fake_manager_user, fake_sales_user):
     result = runner.invoke(
         update_collaborator,
         args=["--token", token],
-        input=f"{fake_sales_user.id}\nJean\nUpdated\nupdated@email.com\n2\nupdatedpassword\n"
+        input=f"{fake_sales_user.id}\nJean\nUpdated\nupdated@email.com\n2\nupdatedpassword\n",
     )
 
     assert result.exit_code == 0
     assert "Collaborateur mis à jour avec succès" in result.output
+
 
 def test_update_collaborator_not_found(fake_manager_user):
     runner = CliRunner()
@@ -69,11 +68,12 @@ def test_update_collaborator_not_found(fake_manager_user):
     result = runner.invoke(
         update_collaborator,
         args=["--token", token],
-        input="9999\nJean\nDoe\nnotfound@email.com\n2\npass\n"
+        input="9999\nJean\nDoe\nnotfound@email.com\n2\npass\n",
     )
 
     assert result.exit_code == 0
     assert "Collaborateur introuvable." in result.output
+
 
 def test_delete_collaborator_success(fake_manager_user):
     runner = CliRunner()
@@ -86,31 +86,26 @@ def test_delete_collaborator_success(fake_manager_user):
         last_name="Delete",
         email="tempdelete@email.com",
         password=hash_password("temp123"),
-        department_id=2
+        department_id=2,
     )
     session.add(temp_user)
     session.commit()
 
     result = runner.invoke(
-        delete_collaborator,
-        args=["--token", token],
-        input=f"{temp_user.id}\nY\n"
+        delete_collaborator, args=["--token", token], input=f"{temp_user.id}\nY\n"
     )
 
     session.close()
 
     assert result.exit_code == 0
     assert "Collaborateur supprimé avec succès." in result.output
-    
+
+
 def test_delete_collaborator_not_found(fake_manager_user):
     runner = CliRunner()
     token = create_token(fake_manager_user.id)
 
-    result = runner.invoke(
-        delete_collaborator,
-        args=["--token", token],
-        input="9999\n"
-    )
+    result = runner.invoke(delete_collaborator, args=["--token", token], input="9999\n")
 
     assert result.exit_code == 0
     assert "Collaborateur introuvable." in result.output

@@ -1,9 +1,10 @@
 import pytest
 from app.db.session import SessionLocal
 from app.models import Collaborator
-from app.auth.auth import create_token, hash_password
+from app.auth.auth import hash_password
 from app.models.client import Client
 from app.models.contract import Contract
+
 
 @pytest.fixture
 def fake_user():
@@ -22,7 +23,8 @@ def fake_user():
     session.delete(user)
     session.commit()
     session.close()
-    
+
+
 @pytest.fixture
 def fake_manager_user():
     session = SessionLocal()
@@ -130,9 +132,7 @@ def another_client():
     session.delete(client)
     session.commit()
     session.close()
-    
-    
-    
+
 
 @pytest.fixture
 def support_user():
@@ -150,7 +150,6 @@ def support_user():
     session.delete(user)
     session.commit()
     session.close()
-
 
 
 @pytest.fixture

@@ -1,8 +1,7 @@
-import pytest
 from click.testing import CliRunner
 from app.cli.contract import create_contract, update_contract
-from app.auth.auth import hash_password, create_token
-from app.models import  Client, Contract
+from app.auth.auth import create_token
+from app.models import Contract
 from app.db.session import SessionLocal
 
 
@@ -13,17 +12,17 @@ def test_create_contract_success(fake_manager_user, existing_client):
     result = runner.invoke(
         create_contract, input=f"{token}\n{existing_client.id}\n5000\n1000\nN\n"
     )
-    print("---RESULT OUTPUT---")
-    print(result.output)
     assert result.exit_code == 0
     assert "Contrat créé avec succès." in result.output
 
 
 def test_create_contract_unauthorized(fake_sales_user, existing_client):
     runner = CliRunner()
-    token = create_token(fake_sales_user.id)  
+    token = create_token(fake_sales_user.id)
 
-    result = runner.invoke(create_contract, input=f"{token}\n{existing_client.id}\n3000\nN\n")
+    result = runner.invoke(
+        create_contract, input=f"{token}\n{existing_client.id}\n3000\nN\n"
+    )
 
     assert result.exit_code == 0
     assert "Accès refusé" in result.output
@@ -62,9 +61,9 @@ def test_update_contract_not_found(fake_manager_user):
     token = create_token(fake_manager_user.id)
 
     result = runner.invoke(update_contract, input=f"{token}\n9999\n2000\nN\n")
-    
+
     assert result.exit_code == 0
-    assert "Contrat introuvable" or 'Aucun contrat disponible' in result.output
+    assert "Contrat introuvable" or "Aucun contrat disponible" in result.output
 
 
 def test_update_contract_unauthorized_user(fake_sales_user, existing_client):

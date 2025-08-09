@@ -1,9 +1,5 @@
-import pytest
 from click.testing import CliRunner
 from app.cli.main import login
-from app.db.session import SessionLocal
-from app.models.collaborator import Collaborator
-from app.auth.auth import hash_password
 
 
 def test_login_success(fake_user):
@@ -13,12 +9,14 @@ def test_login_success(fake_user):
     assert result.exit_code == 0
     assert "Authentification réussie. Token :" in result.output
 
+
 def test_login_invalid_password(fake_user):
     runner = CliRunner()
     result = runner.invoke(login, input="test@login.com\nwrongpassword\n")
 
     assert result.exit_code == 0
     assert "Mot de passe incorrect" in result.output
+
 
 def test_login_user_not_found():
     runner = CliRunner()

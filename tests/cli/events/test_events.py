@@ -1,10 +1,8 @@
-
 from app.auth.auth import create_token
 from app.cli.event import create_event, update_event
 from click.testing import CliRunner
 from app.db.session import SessionLocal
 from app.models.event import Event
-
 
 
 def test_create_event_success(contract):
